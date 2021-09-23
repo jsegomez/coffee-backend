@@ -1,0 +1,27 @@
+{
+  "name": "coffee-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index"    
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jsegomez/coffee-backend.git"
+  },
+  "author": "Josue Eliezer Gomez Soto",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jsegomez/coffee-backend/issues"
+  },
+  "homepage": "https://github.com/jsegomez/coffee-backend#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  }
+}
