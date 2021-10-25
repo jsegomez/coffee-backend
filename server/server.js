@@ -8,6 +8,7 @@ class Server {
         this.port = process.env.PORT;
         this.usersPath = '/api/users';
         this.rolesPath = '/api/roles';
+        this.authPath  = '/api/auth';
 
         this.database();
 
@@ -28,6 +29,7 @@ class Server {
     routes() {
         this.app.use(this.usersPath, require('../routes/user.routes'));
         this.app.use(this.rolesPath, require('../routes/role.routes'));
+        this.app.use(this.authPath,  require('../routes/auth.routes'));
     }
 
     listen(){

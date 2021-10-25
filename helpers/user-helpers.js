@@ -1,6 +1,6 @@
 const User = require('../models/user.model');
 
-const existById = async(id) => {
+const existUserById = async(id) => {
     const user = await User.findById(id);
 
     if(!user){
@@ -16,4 +16,4 @@ const isUniqueEmail = async(email = '') => {
     }
 }
 
-module.exports = { existById, isUniqueEmail }
+module.exports = { existUserById, isUniqueEmail }

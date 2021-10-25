@@ -2,25 +2,45 @@ const { Router } = require('express');
 const { check } = require('express-validator');
 
 // Métodos en controlador
-const { getUsers, create, findById, update, deleteUser } = require('../controllers/user.controller');
+const {
+    getUsers,
+    create,
+    findById,
+    update,
+    deleteUser,
+    disableUser,
+    getDisabledUsers,
+    activateUser
+} = require('../controllers/user.controller');
 
 // Validación de campos
 const { validateFields } = require('../middlewares/validate-fields');
 
 // Helpers
-const { existById, isUniqueEmail } = require('../helpers/user-helpers');
+const { existUserById, isUniqueEmail } = require('../helpers/user-helpers');
 const { verifyRole } = require('../helpers/role-helpers');
+
+const validateJWT = require('../middlewares/validate-jwt');
+const { isAdmin } = require('../middlewares/role-type');
 
 const router = Router();
 
-router.get('/', getUsers);
+router.get('/',
+    validateJWT
+,getUsers);
+
+router.get('/disabled-users', [
+    validateJWT        
+], getDisabledUsers);
 
 router.get('/:id', [
-    check('id', 'Id invalido').isMongoId().custom(existById),
+    validateJWT,
+    check('id', 'Id invalido').isMongoId().custom(existUserById),
     validateFields
 ], findById);
 
 router.post('/', [    
+    validateJWT,
     check('name', 'Favor proporcionar su nombre').isLength({min: 2}),
     check('lastName', 'Favor proporcionar su apellido').isLength({min: 2}),
     check('email', 'Favor proporcionar una dirección de correo').isEmail().custom(isUniqueEmail),
@@ -30,15 +50,31 @@ router.post('/', [
 ], create);
 
 router.put('/:id', [
-    check('id', 'Id invalido').isMongoId(),
+    validateJWT,
+    check('id', 'Id invalido').isMongoId().custom(existUserById),
     check('name', 'Favor proporcionar su nombre').isLength({min: 2}),
     check('lastName', 'Favor proporcionar su apellido').isLength({min: 2}),
     check('email', 'Favor proporcionar una dirección de correo').isEmail(),    
     validateFields
 ], update);
 
+router.put('/activate/:id', [
+    validateJWT,
+    isAdmin,
+    check('id', 'Id invalido').isMongoId().custom(existUserById)
+], activateUser);
+
+router.delete('/disabled/:id', [
+    validateJWT,
+    isAdmin,
+    check('id', 'Id invalido').isMongoId().custom(existUserById),
+    validateFields
+], disableUser);
+
 router.delete('/:id', [
-    check('id', 'Id invalido').isMongoId().custom(existById),
+    validateJWT,
+    isAdmin,
+    check('id', 'Id invalido').isMongoId().custom(existUserById),
     validateFields
 ], deleteUser);
 

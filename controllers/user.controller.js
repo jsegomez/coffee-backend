@@ -6,10 +6,31 @@ const User = require('../models/user.model');
 
 const getUsers = async(req = request, res = response) => {
     const { from = 0, limit = 10 } = req.query;
+    const authenticatedUser = req.user;
     
     const [total, users] = await Promise.all([
-        User.countDocuments({state: true}),
-        User.find({state: true})
+        User.countDocuments({status: true}),
+        User.find({status: true})
+            .skip(Number(from))
+            .limit(Number(limit))
+    ]);
+
+    if(users.length == 0){
+        res.status(404).json({
+            message: 'No se encontraron registros',            
+        });
+    }
+
+    const quantity = users.length;
+    res.status(200).json({users, quantity,total, authenticatedUser});
+}
+
+const getDisabledUsers = async(req = request, res = response) => {
+    const { from = 0, limit = 10 } = req.query;    
+    
+    const [total, users] = await Promise.all([
+        User.countDocuments({status: false}),
+        User.find({status: false})
             .skip(Number(from))
             .limit(Number(limit))
     ]);
@@ -45,7 +66,7 @@ const create = async(req = request, res = response) => {
 
 const update = async(req = request, res = response) => {
     const id = req.params.id;
-    const { state, role, google, password, ...user } = req.body;
+    const { status, role, google, password, ...user } = req.body;
 
     const findDuplicateEmail = await User.findOne({ email: user.email });
 
@@ -62,11 +83,22 @@ const update = async(req = request, res = response) => {
 
 const disableUser = async(req = request, res = response) => {
     const id = req.params.id;
-    await User.findByIdAndUpdate(id, {state: false}, {new: true});
+    try {
+        const user = await User.findByIdAndUpdate(id, {status: false}, {new: true});
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
 
-    res.status(200).json({
-        ok: true
-    });
+const activateUser = async(req = request, res = response) => {
+    try {
+        const id = req.params.id;        
+        const user = await User.findByIdAndUpdate(id, {status: true}, {new: true});
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json(error);
+    }
 }
 
 const deleteUser = async(req = request, res = response) => {
@@ -77,4 +109,13 @@ const deleteUser = async(req = request, res = response) => {
     });
 }
 
-module.exports = { getUsers, create, findById, update, deleteUser }
+module.exports = {
+    getUsers,
+    create,
+    findById,
+    update,
+    deleteUser,
+    disableUser,
+    getDisabledUsers,
+    activateUser
+}

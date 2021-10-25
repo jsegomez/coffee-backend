@@ -22,7 +22,7 @@ const UserSchema = Schema({
         type: String,
         require: [true, 'Favor indicar una contraseña']
     },
-    state: {
+    status: {
         type: Boolean,
         default: true,
     },
@@ -32,12 +32,13 @@ const UserSchema = Schema({
     },
     google: {
         type: Boolean,
-        default: true,
+        default: false,
     }
 });
 
 UserSchema.methods.toJSON = function() {
-    const {__v, password, ...user } = this.toObject();    
+    const {__v, password, _id, ...user } = this.toObject();    
+    user.id = _id;
     return user;
 }
 
