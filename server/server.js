@@ -6,9 +6,12 @@ class Server {
     constructor() {
         this.app = express();
         this.port = process.env.PORT;
-        this.usersPath = '/api/users';
-        this.rolesPath = '/api/roles';
-        this.authPath  = '/api/auth';
+        this.paths = {
+            auth:       '/api/auth',
+            roles:      '/api/roles',
+            users:      '/api/users',
+            categories: '/api/categories'
+        }
 
         this.database();
 
@@ -27,9 +30,10 @@ class Server {
     }
 
     routes() {
-        this.app.use(this.usersPath, require('../routes/user.routes'));
-        this.app.use(this.rolesPath, require('../routes/role.routes'));
-        this.app.use(this.authPath,  require('../routes/auth.routes'));
+        this.app.use(this.paths.users,      require('../routes/user.routes'));
+        this.app.use(this.paths.roles,      require('../routes/role.routes'));
+        this.app.use(this.paths.auth,       require('../routes/auth.routes'));
+        this.app.use(this.paths.categories, require('../routes/categories.routes'));
     }
 
     listen(){
